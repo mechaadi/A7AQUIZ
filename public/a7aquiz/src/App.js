@@ -447,7 +447,7 @@ export class App extends Component {
                       }}
                     >
                       <div className="card-body">
-                        <h1 className="card-title">{q.q}</h1>
+                      <h1 dangerouslySetInnerHTML={{__html:q.q}} />
                         <div onChange={this.setAnswer.bind(this)}>
                           <div
                             className="row"
