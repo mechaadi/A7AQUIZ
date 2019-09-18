@@ -42,13 +42,19 @@ let W_PROGRAMMING = 0;
 let SC_APTITUDE = 0;
 let C_APTITUDE = 0;
 let W_APTITUDE = 0;
+let currentCodingIndex = 1;
+let currentAptIndex = 1;
+
 
 
 export class App extends Component {
   constructor(props) {
     super(props);
+
+    let Canvas = <canvas onContextMenu={(e)=>  {e.preventDefault(); return false;}} height={500} width={500} ref="canvas"/>;
+
     this.state = {
-      time: {}, seconds: 3600 ,
+      time: {}, seconds: 2400 ,
       
       totalScore: 0,
       currentScore: 0,
@@ -63,7 +69,9 @@ export class App extends Component {
       userLoggedIn:false,
       plang:"",
       currentQuestion:1,
-      signedIn:"LOGIN"
+      signedIn:"LOGIN",
+      alreadyAttemptedOption :"",
+      alreadyAttemptedOptionApt :"",
       
     };
 
@@ -229,9 +237,14 @@ export class App extends Component {
     if (seconds == 0) { 
       clearInterval(this.timer);
 
-      this.submitProgrammingQuiz();
+     // this.submitProgrammingQuiz();
      // this.submitAptitude();
     }
+  }
+
+
+  alreadyAttempted(id){
+
   }
 
 
@@ -478,7 +491,7 @@ export class App extends Component {
       //console.log("This is of non apt")
 
     
-      console.log(this.state.questions);
+     // console.log(this.state.questions);
       let that  = this;
 
       this.setState({currentQuestion:this.state.currentQuestion+1});
@@ -748,7 +761,7 @@ export class App extends Component {
 
     let that = this;
 
-    this.state.questions[this.state.currentIndexApt].attempt = true;
+    this.state.Aptquestions[this.state.currentIndexApt].attempt = true;
         firebase
       .database()
       .ref("/quiz1/Aptitude/" + (id))
@@ -1061,8 +1074,9 @@ export class App extends Component {
 
           document.getElementById("signbutton").style.display = "none";
           document.getElementById("profiletag").style.visibility = "visible";
-          document.getElementById("username").innerHTML = fname + " " +lname + "<br/>" + "System id : " + sysid + "<br/>" + "Programming language: " + strUser;
+          document.getElementById("username").innerHTML = fname + " " +lname + "<br/>" + "System id : " + sysid + "<br/>" + "Programming language: " + strUser + "<br/>" + "Email: "+user.email;
           document.getElementById("dp").src = user.photoURL;
+
 
          
 
@@ -1201,19 +1215,19 @@ export class App extends Component {
     let that = this;
     this.state.Aptquestions.forEach(function(m){
       if(m.selectedOption === m.answer){
-        console.log("true");
+       // console.log("true");
         let cc = that.state.totalScore + 3;
         SC_APTITUDE = SC_APTITUDE + 3;
         C_APTITUDE = C_APTITUDE + 1;
 
 
       
-        console.log("this is total score of true: "+SC_APTITUDE);
+        //console.log("this is total score of true: "+SC_APTITUDE);
 
       }
 
       else if(m.selectedOption === ""){
-        console.log("blank options");
+       // console.log("blank options");
       }
 
       else {
@@ -1221,7 +1235,7 @@ export class App extends Component {
         SC_APTITUDE = SC_APTITUDE - 1;
         W_APTITUDE = W_APTITUDE + 1;
        
-        console.log("this is total score false: "+SC_APTITUDE);
+       // console.log("this is total score false: "+SC_APTITUDE);
 
       }
 
@@ -1259,11 +1273,11 @@ export class App extends Component {
     document.getElementById("programming").style.display = "none";
     document.getElementById("afterProgramming").style.display = "block";
     document.getElementById("upperLogoutButton").style.display="none";
-    console.log("here")
+   // console.log("here")
     let that = this;
     this.state.questions.forEach(function(m){
       if(m.selectedOption === m.answer){
-        console.log("true");
+     //   console.log("true");
         let cc = that.state.totalScore + 3;
         SC_PROGRAMMING = SC_PROGRAMMING + 3;
         C_PROGRAMMING = C_PROGRAMMING + 1;
@@ -1274,12 +1288,12 @@ export class App extends Component {
           //correct: cr
         });
 
-        console.log("this is total score of true: "+SC_PROGRAMMING);
+        //console.log("this is total score of true: "+SC_PROGRAMMING);
 
       }
 
       else if(m.selectedOption === ""){
-        console.log("blank options");
+        //console.log("blank options");
       }
 
       else {
@@ -1291,14 +1305,14 @@ export class App extends Component {
           //correct: cr
         });
 
-        console.log("this is total score false: "+SC_PROGRAMMING);
+      //  console.log("this is total score false: "+SC_PROGRAMMING);
 
       }
 
 
 
     });
-    console.log("this is total score: "+this.state.totalScore);
+   // console.log("this is total score: "+this.state.totalScore);
 
     var userRef = firebase
     .database()
@@ -1325,11 +1339,12 @@ export class App extends Component {
   }
 
   nextQuestion() {
-  
+    //this.checkAttempt.bind(this);
     //console.log("ho");
-    console.log(typeof this.state.currentIndex);
+    //console.log(typeof this.state.currentIndex);
 
-
+    currentCodingIndex = currentCodingIndex + 1
+    console.log(currentCodingIndex);
     document.getElementById("subAndNextProgrammingButton").style.backgroundColor="#26A69A"
   
     
@@ -1344,13 +1359,37 @@ export class App extends Component {
         currentIndex: c
       });
 
-      if(this.state.currentIndex+1==39){
-        console.log(this.state.currentIndex);
+      var attempted = this.state.questions[currentCodingIndex-1].attempt
+      
+      if(attempted){
+       // console.log(that.state.currentIndex)
+  
+        var selectedoption = this.state.questions[currentCodingIndex-1].selectedOption;
+        console.log(selectedoption);
+        this.setState({alreadyAttemptedOption: selectedoption})
+        document.getElementById("attemptedBoxProgramming").style.visibility = "visible";
+
+      }
+  
+      else {
+        // console.log(that.state.currentIndex)
+  
+        console.log("Un-attempted");
+        document.getElementById("attemptedBoxProgramming").style.visibility = "collapse";
+
+      }
+
+      if(this.state.currentIndex+1==29){
+       // console.log(this.state.currentIndex);
         document.getElementById("nextProgrammingButton").style.visibility = "hidden" ;
+        document.getElementById("skipBtnProgramming").style.visibility = "hidden" ;
+
       }
 
         else{
           document.getElementById("nextProgrammingButton").style.visibility = "visible" ;
+          document.getElementById("skipBtnProgramming").style.visibility = "visible" ;
+
         }
       
 
@@ -1367,16 +1406,63 @@ export class App extends Component {
     //console.log(this.state.questions);
   }
 
+  checkAttempt(cur){
+    //console.log(this.state.currentIndex);
+    var attempted = this.state.questions[cur].attempt
+    if(attempted){
+      console.log(this.state.currentIndex)
+      var selectedoption = this.state.questions[cur].selectedOption;
+      console.log(selectedoption);
+    }
+
+    else {
+      // console.log(that.state.currentIndex)
+
+       console.log("Un-attempted");
+       
+    }
+  }
+
   previousQuestion() {
+
+   // this.checkAttempt.bind(this);
+
+  
+    
     document.getElementById("subAndNextProgrammingButton").style.backgroundColor="#26A69A"
 
     //console.log("ho");
     let c = this.state.currentIndex - 1;
     if (c >= 0) {
+      currentCodingIndex = currentCodingIndex -1
+    console.log(currentCodingIndex)
+
+    var attempted = this.state.questions[currentCodingIndex-1].attempt
+      if(attempted){
+       // console.log(that.state.currentIndex)
+  
+        var selectedoption = this.state.questions[currentCodingIndex-1].selectedOption;
+        console.log(selectedoption);
+        this.setState({alreadyAttemptedOption: selectedoption})
+        document.getElementById("attemptedBoxProgramming").style.visibility = "visible";
+      }
+  
+      else {
+        // console.log(that.state.currentIndex)
+        document.getElementById("attemptedBoxProgramming").style.visibility = "collapse";
+
+        console.log("Un-attempted");
+      }
+
       let that = this;
       that.setState({
         currentIndex: c
       });
+
+     // console.log(that.state.questions[that.state.currentIndex+1].attempt)
+
+
+     
 
       document.getElementById("o1").checked = false;
       document.getElementById("o2").checked = false;
@@ -1391,6 +1477,8 @@ export class App extends Component {
   }
 
   nextQuestionApt() {
+    currentAptIndex = currentAptIndex + 1
+    console.log(currentAptIndex);
     //document.getElementById(selectedAptOpt).style.backgroundColor="#90A4AE"
     document.getElementById("subAndNextAptitudeButton").style.backgroundColor="#26A69A"
 
@@ -1404,13 +1492,38 @@ export class App extends Component {
         currentIndexApt: c
       });
 
+      var attempted = this.state.Aptquestions[currentAptIndex-1].attempt
+      
+      if(attempted){
+       // console.log(that.state.currentIndex)
+  
+        var selectedoption = this.state.Aptquestions[currentAptIndex-1].selectedOption;
+        console.log(selectedoption);
+        this.setState({alreadyAttemptedOptionApt: selectedoption})
+        document.getElementById("attemptedBoxAptitude").style.visibility = "visible";
+
+      }
+  
+      else {
+        // console.log(that.state.currentIndex)
+  
+        console.log("Un-attempted");
+        document.getElementById("attemptedBoxAptitude").style.visibility = "collapse";
+
+      }
+
       if(this.state.currentIndexApt+1==9){
-        console.log(this.state.currentIndex);
+       // console.log(this.state.currentIndex);
         document.getElementById("nextAptitudeButton").style.visibility = "hidden" ;
+        
+        document.getElementById("skipBtnApt").style.visibility = "hidden" ;
+
       }
 
       else{
         document.getElementById("nextAptitudeButton").style.visibility = "visible" ;
+        document.getElementById("skipBtnApt").style.visibility = "visible" ;
+
       }
       document.getElementById("oa1").checked = false;
       document.getElementById("oa2").checked = false;
@@ -1428,6 +1541,26 @@ export class App extends Component {
     //console.log("ho");
     let c = this.state.currentIndexApt - 1;
     if (c >= 0) {
+      currentAptIndex = currentAptIndex -1
+    console.log(currentAptIndex)
+
+    var attempted = this.state.Aptquestions[currentAptIndex-1].attempt
+      if(attempted){
+       // console.log(that.state.currentIndex)
+  
+        var selectedoption = this.state.Aptquestions[currentAptIndex-1].selectedOption;
+        console.log(selectedoption);
+        this.setState({alreadyAttemptedOptionApt: selectedoption})
+        document.getElementById("attemptedBoxAptitude").style.visibility = "visible";
+      }
+  
+      else {
+        // console.log(that.state.currentIndex)
+        document.getElementById("attemptedBoxAptitude").style.visibility = "collapse";
+
+        console.log("Un-attempted");
+      }
+
       let that = this;
       that.setState({
         currentIndexApt: c
@@ -1463,7 +1596,7 @@ export class App extends Component {
       array[randomIndex] = temporaryValue;
     }
   
-    return array.slice(0, 40);
+    return array.slice(0, 30);
   }
 
 
@@ -1523,7 +1656,7 @@ export class App extends Component {
                  
                 <div className="col-12">
                 <h3 style={{display:"inline"}} style={{ color: "white" }}>
-                  TURING THINKING
+                  THE MIND FIZZ
                 </h3>
                 </div>
                 </div>
@@ -1688,13 +1821,34 @@ export class App extends Component {
                   <div className="col-8">
                     <h1 style={{ color: "white" }}>
                       {" "}
-                     PROGRAMMING -  QUESTION {this.state.currentIndex + 1} OF {40}
+                     PROGRAMMING -  QUESTION {this.state.currentIndex + 1} OF {30}
                     </h1>
                   </div>
 
                   <div className="col-2">
                     {/* <h1 style={{ color: "white" }}> LEADERBOARD </h1> */}
                   </div>
+                </div>
+
+                <div className="row" id="attemptedBoxProgramming" style={{visibility:"collapse"}}>
+                <div className="col-2"></div>
+                <div className="col-8"
+                      style={{
+                        boxShadow:
+                          "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+                        
+                        padding: "10px",
+                        borderRadius: "20px",
+                        backgroundColor: "white"
+                      }}
+                    >
+
+                      <h3 style={{backgroundColor:"green", color:"white"}}>ALREADY ATTEMPTED</h3>
+                      
+                      <p> SELECTED OPTION : <span>{this.state.alreadyAttemptedOption}</span> </p> 
+
+                </div>
+                <div className="col-2"></div>
                 </div>
 
                 <div className="row">
@@ -1864,7 +2018,7 @@ export class App extends Component {
                             <div
                             id="subAndNextProgrammingButton"
                               onClick={()=>this.submitAnswer(q.id)}
-                              className="col-5"
+                              className="col-4"
                               style={{
                                 borderRadius: "20px",
                                 backgroundColor: "#26A69A",
@@ -1875,11 +2029,23 @@ export class App extends Component {
                               </h4>
                             </div>
 
-                            <div className="col-2"></div>
+                            <div className="col-4"
+                            id="skipBtnProgramming"
+                              onClick={()=>this.nextQuestion(q.id)}
+                              style={{
+                                borderRadius: "20px",
+                                backgroundColor: "#D84315",
+                              }}
+                            >
+                              <h4 style={{ color: "white", marginTop: "6px" }}>
+                                SKIP 
+                              </h4>
+
+                            </div>
 
                             <div
                               onClick={()=>this.submitProgrammingQuiz()}
-                              className="col-5"
+                              className="col-4"
                               style={{
                                 borderRadius: "20px",
                                 backgroundColor: "#26A69A",
@@ -2021,6 +2187,28 @@ export class App extends Component {
                   <div className="col-2"></div>
 
                   
+                </div>
+
+
+                <div className="row" id="attemptedBoxAptitude" style={{visibility:"collapse"}}>
+                <div className="col-2"></div>
+                <div className="col-8"
+                      style={{
+                        boxShadow:
+                          "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+                        
+                        padding: "10px",
+                        borderRadius: "20px",
+                        backgroundColor: "white"
+                      }}
+                    >
+
+                      <h3 style={{backgroundColor:"green", color:"white"}}>ALREADY ATTEMPTED</h3>
+                      
+                      <p> SELECTED OPTION : <span>{this.state.alreadyAttemptedOptionApt}</span> </p> 
+
+                </div>
+                <div className="col-2"></div>
                 </div>
 
                 <div className="row">
@@ -2190,7 +2378,7 @@ export class App extends Component {
                             <div
                             id="subAndNextAptitudeButton"
                               onClick={()=>this.submitAnswerApt(q.id)}
-                              className="col-5"
+                              className="col-4"
                               style={{
                                 borderRadius: "20px",
                                 backgroundColor: "#26A69A",
@@ -2200,10 +2388,24 @@ export class App extends Component {
                                 Save
                               </h4>
                             </div>
-                            <div className="col-2"></div>
+
+                           <div
+                              id = "skipBtnApt"
+                              onClick={()=>this.nextQuestionApt(q.id)}
+                              className="col-4"
+                              style={{
+                                borderRadius: "20px",
+                                backgroundColor: "#D84315",
+                              }}
+                            >
+                              <h4 style={{ color: "white", marginTop: "6px" }}>
+                                SKIP 
+                              </h4>
+                            </div>
+
                             <div
                               onClick={()=>this.submitAptitude()}
-                              className="col-5"
+                              className="col-4"
                               style={{
                                 borderRadius: "20px",
                                 backgroundColor: "#26A69A",
@@ -2250,7 +2452,7 @@ export class App extends Component {
               <img style={{display:"inline"}}src={mindfizz} height="100px"/>
               <h3 style={{display:"inline", marginLeft:"40px"}}>TURING THINKING</h3>
             </div> */}
-            <br/><br/>
+            <br/><br/><br/>
             <div  style={{
                         boxShadow:
                           "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
@@ -2259,10 +2461,20 @@ export class App extends Component {
                         borderRadius: "20px",
                         backgroundColor: "white"
                       }}>
-            <h1>INSTRUCTIONS</h1>
+            <h1>INSTRUCTIONS - THE MIND FIZZ</h1>
             <br/><br/>
             <h5>
             
+            1.  STUDENTS WILL BE AWARDED <b style={{color:"green"}}>+3</b> FOR EVERY CORRECT ATTEMPT AND <b style={{color:"red"}}>-1</b> FOR EVERY INCORRECT ATTEMPT AND 0 FOR NO ATTEMPT. <br/><br/><br/>
+            2.  THERE IS A TIMER AT THE TOP OF THE MAIN SCREEN OF THIS WEBAPP, THIS COUNTDOWN TIMER INDICATES THE TIME LEFT TO COMPLETE THE QUIZ. <b style={{color:"blue"}}>AFTER 60 MINUTES, THE PORTAL WILL BE LOCKED AUTOMATICALLY, FOR ALL THE STUDENTS.</b><br/><br/><br/>
+            3.  <b style={{color:"red"}}>DO NOT REFRESH THE PAGE</b>, THIS WILL RESET YOUR SCORE WHICH MEANS YOU ARE GOING TO LOSE ALL YOUR SCORES AND START FROM THE BEGINNING EVERYTIME YOU REFRESH THE PAGE. <br/><br/><br/>
+            4.  <b>SUBMIT QUIZ</b> WILL SUBMIT ALL YOUR SAVED RESPONSES AT END THE QUIZ OR IN THE MIDDLE OF QUIZ IF WANT TO LEAVE EARLY.<br/><br/><br/>
+            5.  <b>SAVE BUTTON</b> WILL SAVE YOUR RESPONSE.<br/><br/><br/>
+            6.  YOU CAN <b>SKIP ANY QUESTION</b> BY CLICKING ON <b>NEXT BUTTON</b>, NO NEGATIVE MARKING FOR SKIPPED QUESTIONS.<br/><br/><br/>
+            7.  <b>AFTER SELECTING A RESPONSE</b> YOU MUST <b>SAVE YOUR RESPONSE</b> USING THE <b>SAVE BUTTON</b>.<br/><br/><br/>
+            8.  YOU CAN <b>SUBMIT THE QUIZ ANYTIME</b> BY CLICKING ON <b>>SUBMIT QUIZ BUTTON.</b><br/><br/><br/>
+            9.  IF <b>CAUGHT CHEATING</b> BY ANY MEANS YOU WILL BE <b>DISQUALIFIED</b> AT THE MOMENT.<br/><br/><br/>
+            10.  YOU CAN USE THE <b>LOGOUT BUTTON</b> IF YOU WANT TO LOGOUT, AT ANY GIVEN INSTANCE OF TIME <br/><br/><br/>
 
             </h5>
             </div>
@@ -2292,10 +2504,12 @@ export class App extends Component {
                         <div onClick={function(){window.open("https://www.instagram.com/a7aent/")}} style={{display:"inline"}}><img height="30px" style={{margin:"4px"}} src={instagram}></img></div>
                         <div onClick={function(){window.open("https://a7aweb.web.app")}} style={{display:"inline"}}><img height="30px" style={{margin:"4px"}} src={domain}></img></div>
                     </div>
+                    <p><a href="https://a7aweb.web.app">POWERED BY <b>A7A</b></a></p> 
+
             
               </div>
             </div>
-            <p className="text-center"><a href="https://a7aweb.web.app">POWERED BY A7A</a></p> 
+           
 
             <br/>
 
@@ -2335,7 +2549,7 @@ export class App extends Component {
           <select id="lang" name="lang">
             <option value="C">C</option>
             <option value="Python">Python</option>
-            <option value="Java">Java</option>
+            {/* <option value="Java">Java</option> */}
           </select>
 
 
